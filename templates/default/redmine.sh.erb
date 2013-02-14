@@ -1,0 +1,63 @@
+#!/bin/bash
+
+LANG=ja_JP.UTF-8
+RAILS_ENV=$1
+CMD=$2
+if [ ! $RAILS_ENV ]; then
+    RAILS_ENV="local"
+fi
+if [ ! $CMD ]; then
+    CMD="start"
+fi
+
+# Load rvm
+if [ $RAILS_ENV = "local" ]; then
+    if [ ! -f ./config/settings.yml ]; then
+        echo "Please run from the redmine root directory."
+        exit
+    fi
+    [[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"
+    BASEDIR=.
+else
+    [[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"
+    BASEDIR="<%= node.rvm_redmine.path %>"
+fi
+
+
+PIDFILE="$BASEDIR/tmp/pids/unicorn.pid"
+if [ $RAILS_ENV = "local" ]; then
+    DAEMONSCRIPT="ruby script/server webrick"
+    DAEMONOPTIONS="-e development"
+    RVM_USE_NAME="<%= node.rvm.ruby_version %><%= node.rvm.name %>"
+else
+    CONFIGFILE="$BASEDIR/config/unicorn.config.rb"
+    DAEMONSCRIPT="unicorn_rails"
+    DAEMONOPTIONS="-c $CONFIGFILE -E $RAILS_ENV -D"
+    RVM_USE_NAME="<%= node.rvm.ruby_version %><%= node.rvm.name %>"
+fi
+
+rvm use $RVM_USE_NAME
+
+case "$CMD" in
+  start)
+    cd $BASEDIR
+    $DAEMONSCRIPT $DAEMONOPTIONS
+    ;;
+  stop)
+    kill `cat -- $PIDFILE`
+    ;;
+  reload)
+    kill -s HUP `cat -- $PIDFILE`
+    ;;
+  restart)
+    kill `cat -- $PIDFILE`
+    sleep 3
+    cd $BASEDIR
+    $DAEMONSCRIPT $DAEMONOPTIONS
+    ;;
+  *)
+    echo "Usage: redmine.sh {start|stop|restart}"
+    exit 1
+esac
+
+exit 0

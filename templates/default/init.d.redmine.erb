@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# This script place to /etc/init.d/redmine
+
+# このスクリプトは実行ユーザーを切り替えるスクリプトで、起動される
+# redmine.sh はさらに unicorn を起動する。
+# redmine.sh は $USER の権限と環境で rvm を使うため、このスクリプト
+# とは分けています。
+
+LANG=ja_JP.UTF-8
+
+USER=<%= node.rvm_redmine.user %>
+USERHOME=<%= node.rvm_redmine.user_home %>
+BASEDIR="<%= node.rvm_redmine.path %>"
+DAEMONSCRIPT="$BASEDIR/redmine.sh"
+DAEMONOPTIONS="production"
+
+case "$1" in
+  start)
+    su - $USER -c "HOME=$USERHOME $DAEMONSCRIPT $DAEMONOPTIONS start"
+    ;;
+  stop)
+    su - $USER -c "HOME=$USERHOME $DAEMONSCRIPT $DAEMONOPTIONS stop"
+    ;;
+  reload)
+    su - $USER -c "HOME=$USERHOME $DAEMONSCRIPT $DAEMONOPTIONS reload"
+    ;;
+  restart)
+    su - $USER -c "HOME=$USERHOME $DAEMONSCRIPT $DAEMONOPTIONS restart"
+    ;;
+  *)
+    echo "Usage: redmine.sh {start|stop|reload|restart}"
+    exit 1
+esac
+
+exit 0
