@@ -8,6 +8,7 @@ version          "0.1.0"
 recipe "rvm-redmine", "install redmine into gem environment."
 recipe "rvm-redmine::apache", "install apache and setup proxy to redmine."
 
+depends "openssl"
 depends "apache2"
 depends "imagemagick"
 depends "rvm"

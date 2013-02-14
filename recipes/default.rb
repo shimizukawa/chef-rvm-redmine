@@ -17,36 +17,40 @@
 # limitations under the License.
 #
 
-require_recipe "imagemagick" #need for redmine gantt
-require_recipe "imagemagick::devel" #need for redmine gantt
-require_recipe "rvm::user"
-require_recipe "rvm::gem_packages"
+include_recipe "openssl"
+include_recipe "imagemagick" #need for redmine gantt
+include_recipe "imagemagick::devel" #need for redmine gantt
+include_recipe "rvm::system"
+include_recipe "rvm::gem_package"
 
 
 directory node.rvm_redmine.user_home do
   owner node.rvm_redmine.user
   group node.rvm_redmine.group
+  recursive true
 end
 
-#file "#{node.rvm_redmine.user_home}/.gemrc" do
-#  # for ignore rdoc and ri
-#  action :create_if_missing
-#  owner node.rvm_redmine.user
-#  group node.rvm_redmine.group
-#  content "gem: --no-ri --no-rdoc"
-#end
+file "#{node.rvm_redmine.user_home}/.gemrc" do
+  # for ignore rdoc and ri
+  action :create
+  owner node.rvm_redmine.user
+  group node.rvm_redmine.group
+  content "gem: --no-ri --no-rdoc"
+end
 
 #rvm_install "#{node.rvm.ruby_version} -C --with-iconv-dir=$rvm_usr_path --with-openssl-dir=$rvm_usr_path -C --with-zlib-dir=$rvm_usr_path --with-readline-dir=$rvm_usr_path"
-rvm_environment node.rvm_redmine.rvm_name do
-  user node.rvm_redmine.user
-end
+rvm_environment node.rvm_redmine.rvm_name
 
-#rvm_gem 'rubygems-update -v=1.3.7'
-#rvm_execute 'update_rubygems' do not_if "test `gem -v` = 1.3.7" end
-#rvm_gem 'rdoc -v=3.12'
-rvm_gem 'gem' do
+rvm_gem 'rubygems-update' do
   ruby_string node.rvm_redmine.rvm_name
   version '1.3.7'
+end
+rvm_shell 'update_rubygems' do
+  #not_if "test `gem -v` = 1.3.7"
+  ruby_string node.rvm_redmine.rvm_name
+end
+rvm_gem 'rdoc' do
+  ruby_string node.rvm_redmine.rvm_name
 end
 rvm_gem 'rmagick' do
   ruby_string node.rvm_redmine.rvm_name
@@ -97,22 +101,27 @@ template "#{node.rvm_redmine.path}/config/additional_environment.rb" do
   group node.rvm_redmine.group
 end
 
-rvm_shell "rvm-rails-install" do
+rvm_shell "bundle install for rails" do
+  ruby_string node.rvm_redmine.rvm_name
+  cwd   node.rvm_redmine.path
+  code "bundle install --without development test pg postgresql sqlite rmagick"
+end
+
+rvm_shell "rails-setup" do
   ruby_string node.rvm_redmine.rvm_name
   user  node.rvm_redmine.user
   group node.rvm_redmine.group
   cwd   node.rvm_redmine.path
 
-  environment ({
-    'RAILS_ENV' => 'production',
-    'REDMINE_LANG' => 'ja',
-  })
+  #environment({'RAILS_ENV' => 'production', 'REDMINE_LANG' => 'ja'})  #this work only with use_rvm! see https://github.com/fnichol/chef-rvm/blob/master/providers/shell.rb#L78
   code <<-EOH
-  bundle install --without development test postgresql sqlite rmagick
-  rake db:create
-  rake generate_session_store
-  rake db:migrate
-  rake redmine:load_default_data
+  gem -v
+  export RAILS_ENV=production
+  export REDMINE_LANG=ja
+  rake --trace db:create
+  rake --trace generate_session_store
+  rake --trace db:migrate
+  rake --trace redmine:load_default_data
   EOH
 end
 
@@ -121,11 +130,6 @@ template "#{node.rvm_redmine.path}/redmine.sh" do
   owner node.rvm_redmine.user
   group node.rvm_redmine.group
   mode "0755"
-end
-
-service "redmine" do
-  supports :restart => true, :start => true, :stop => true, :reload => true
-  action :nothing
 end
 
 template "/etc/init.d/redmine" do
@@ -143,4 +147,9 @@ template "#{node.rvm_redmine.path}/config/unicorn.config.rb" do
   group node.rvm_redmine.group
   mode "0644"
   notifies :restart, "service[redmine]"
+end
+
+service "redmine" do
+  supports :restart => true, :start => true, :stop => true, :reload => true
+  action :enable
 end
