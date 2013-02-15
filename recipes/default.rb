@@ -38,7 +38,6 @@ file "#{node.rvm_redmine.user_home}/.gemrc" do
   content "gem: --no-ri --no-rdoc"
 end
 
-#rvm_install "#{node.rvm.ruby_version} -C --with-iconv-dir=$rvm_usr_path --with-openssl-dir=$rvm_usr_path -C --with-zlib-dir=$rvm_usr_path --with-readline-dir=$rvm_usr_path"
 rvm_environment node.rvm_redmine.rvm_name
 
 rvm_gem 'rubygems-update' do
@@ -62,7 +61,7 @@ rvm_gem 'bundler' do
   version '1.2.1'
 end
 
-rvm_redmine_setup 'redmine-1.4.2' do
+rvm_redmine_setup node.rvm_redmine.name do
   rvm_name node.rvm_redmine.rvm_name
   rvm_home node.rvm_redmine.user_home
   owner node.rvm_redmine.user
@@ -125,4 +124,13 @@ end
 service "redmine" do
   action :nothing
   supports :restart => true, :start => true, :stop => true, :reload => true
+end
+
+node.rvm_redmine.plugins.each do |plugin|
+  rvm_redmine_plugin plugin do
+    rvm_name     node.rvm_redmine.rvm_name
+    rvm_home     node.rvm_redmine.user_home
+    redmine_home "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
+    user         node.rvm_redmine.user
+  end
 end

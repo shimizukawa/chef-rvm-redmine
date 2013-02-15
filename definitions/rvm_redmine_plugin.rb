@@ -34,6 +34,7 @@ define :rvm_redmine_plugin, :action => :install, :rvm_name => '@redmine', :rvm_h
       code        "ruby script/plugin install #{plugin_name}"
       notifies    :run, resources(:rvm_shell => "rvm_redmine bundle install"), :immediately
       notifies    :run, resources(:rvm_shell => "rvm_redmine db:migrate_plugins"), :immediately
+      notifies    :run, resources(:service => "redmine")
     end
 
   end
