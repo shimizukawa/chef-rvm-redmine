@@ -92,7 +92,7 @@ define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :rvm_home
       source "additional_environment.rb"
       path "#{path}/config/additional_environment.rb"
       mode "0644"
-      notifies :run, "rvm_shell[#{name} bundle install]", :immediately
+      notifies :run, "rvm_shell[rvm_redmine bundle install]", :immediately
       notifies :run, "rvm_shell[setup #{name}]"
     end
 
@@ -111,7 +111,7 @@ define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :rvm_home
       rake --trace generate_session_store
       EOH
       #not_if TODO
-      notifies :run, "rvm_shell[#{name} db:migrate]", :immediately
+      notifies :run, "rvm_shell[rvm_redmine db:migrate]", :immediately
       notifies :create, "template[place-#{name}-unicorn.config.rb]"
     end
 

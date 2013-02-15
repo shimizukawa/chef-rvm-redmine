@@ -68,17 +68,17 @@ rvm_redmine_setup 'redmine-1.4.2' do
   group node.rvm_redmine.group
   archive_file = node.rvm_redmine.file
   install_prefix node.rvm_redmine.install_prefix
-  notifies :run, "rvm_shell[#{node.rvm_redmine.name} load_default_data]", :immediately
+  notifies :run, "rvm_shell[rvm_redmine load_default_data]", :immediately
 end
 
-rvm_shell "#{node.rvm_redmine.name} bundle install" do
+rvm_shell "rvm_redmine bundle install" do
   action :nothing
   ruby_string node.rvm_redmine.rvm_name
   cwd "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
   code "bundle install --without development test pg postgresql sqlite rmagick"
 end
 
-rvm_shell "#{node.rvm_redmine.name} db:migrate" do
+rvm_shell "rvm_redmine db:migrate" do
   action      :nothing
   ruby_string node.rvm_redmine.rvm_name
   user        node.rvm_redmine.user
@@ -92,7 +92,7 @@ rvm_shell "#{node.rvm_redmine.name} db:migrate" do
   EOH
 end
 
-rvm_shell "#{node.rvm_redmine.name} db:migrate_plugins" do
+rvm_shell "rvm_redmine db:migrate_plugins" do
   action      :nothing
   ruby_string node.rvm_redmine.rvm_name
   user        node.rvm_redmine.user
@@ -105,7 +105,7 @@ rvm_shell "#{node.rvm_redmine.name} db:migrate_plugins" do
   EOH
 end
 
-rvm_shell "#{node.rvm_redmine.name} load_default_data" do
+rvm_shell "rvm_redmine load_default_data" do
   action :nothing
   ruby_string node.rvm_redmine.rvm_name
   user  node.rvm_redmine.user
