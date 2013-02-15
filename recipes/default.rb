@@ -71,12 +71,18 @@ rvm_redmine_setup 'redmine-1.4.2' do
   notifies :run, "rvm_shell[#{node.rvm_redmine.name} load_default_data]", :immediately
 end
 
-rvm_shell "#{node.rvm_redmine.name} db:migrate" do
+rvm_shell "#{node.rvm_redmine.name} bundle install" do
   action :nothing
   ruby_string node.rvm_redmine.rvm_name
-  user  node.rvm_redmine.user
-  group node.rvm_redmine.group
-  cwd   "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
+  cwd "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
+  code "bundle install --without development test pg postgresql sqlite rmagick"
+end
+
+rvm_shell "#{node.rvm_redmine.name} db:migrate" do
+  action      :nothing
+  ruby_string node.rvm_redmine.rvm_name
+  user        node.rvm_redmine.user
+  cwd         "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
 
   #environment({'RAILS_ENV' => 'production', 'REDMINE_LANG' => 'ja'})  #this work only with use_rvm! see https://github.com/fnichol/chef-rvm/blob/master/providers/shell.rb#L78
   code <<-EOH
@@ -84,7 +90,19 @@ rvm_shell "#{node.rvm_redmine.name} db:migrate" do
   export REDMINE_LANG=ja
   rake --trace db:migrate
   EOH
-  #not_if TODO
+end
+
+rvm_shell "#{node.rvm_redmine.name} db:migrate_plugins" do
+  action      :nothing
+  ruby_string node.rvm_redmine.rvm_name
+  user        node.rvm_redmine.user
+  cwd         "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
+
+  code <<-EOH
+    export RAILS_ENV=production
+    export REDMINE_LANG=ja
+    rake --trace db:migrate_plugins
+  EOH
 end
 
 rvm_shell "#{node.rvm_redmine.name} load_default_data" do

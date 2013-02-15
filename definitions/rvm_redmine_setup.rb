@@ -92,15 +92,7 @@ define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :rvm_home
       source "additional_environment.rb"
       path "#{path}/config/additional_environment.rb"
       mode "0644"
-      notifies :run, "rvm_shell[bundle install #{name}]"
-    end
-
-    rvm_shell "bundle install #{name}" do
-      #action :nothing
-      ruby_string rvm_name
-      cwd   path
-      code "bundle install --without development test pg postgresql sqlite rmagick"
-      #not_if TODO
+      notifies :run, "rvm_shell[#{name} bundle install]", :immediately
       notifies :run, "rvm_shell[setup #{name}]"
     end
 
