@@ -32,7 +32,7 @@ define :rvm_redmine_plugin, :action => :install, :rvm_name => '@redmine', :rvm_h
       user        user
       cwd         redmine_home
       code        "ruby script/plugin install #{plugin_name}"
-      #notifies    :run, resources(:rvm_shell => "rvm_redmine bundle install"), :immediately
+      notifies    :run, resources(:rvm_shell => "rvm_redmine bundle install"), :immediately
       notifies    :run, resources(:rvm_shell => "rvm_redmine db:migrate_plugins"), :immediately
     end
 

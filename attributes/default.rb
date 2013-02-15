@@ -25,16 +25,16 @@ while pw.length < 20
   pw << OpenSSL::Random.random_bytes(1).gsub(/\W/, '')
 end
 
-#FIXME: parametelized values is buggy.
+# for recipes/default.rb
 default[:rvm_redmine][:rvm_name] = "@redmine"
 default[:rvm_redmine][:user] = "www-data"
-default[:rvm_redmine][:group] = default[:rvm_redmine][:user]
-default[:rvm_redmine][:user_home] = "/var/www/"
-default[:rvm_redmine][:install_prefix] = "/var/www/#{default[:rvm_redmine][:user]}"
+default[:rvm_redmine][:group] = "root"
+default[:rvm_redmine][:user_home] = "/var/www"
+default[:rvm_redmine][:install_prefix] = "/var/www/www-data"
 default[:rvm_redmine][:dl_id]    = "76130"
 default[:rvm_redmine][:name] = "redmine-1.4.2"
-default[:rvm_redmine][:file] = "#{default[:rvm_redmine][:name]}.tar.gz"
-default[:rvm_redmine][:archive_url_base] = nil
+default[:rvm_redmine][:file] = nil  # auto generate from :name
+default[:rvm_redmine][:archive_src] = nil  # auto generate from :dl_id and :file
 
 default[:rvm_redmine][:db][:type]     = "mysql"
 default[:rvm_redmine][:db][:user]     = "root"
@@ -47,3 +47,11 @@ default[:rvm_redmine][:unicorn_port] = '10080'
 default[:rvm_redmine][:hostname]         = 'localhost'
 default[:rvm_redmine][:hostname_aliases] = []
 
+
+# setup dynamic attribute
+unless node[:rvm_redmine][:file]
+  override[:rvm_redmine][:file] = "#{node[:rvm_redmine][:name]}.tar.gz"
+end
+unless node[:rvm_redmine][:archive_src]
+  override[:rvm_redmine][:archive_src] = "http://rubyforge.org/frs/download.php/#{node[:rvm_redmine][:dl_id]}/#{node[:rvm_redmine][:file]}"
+end

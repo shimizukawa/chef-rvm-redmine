@@ -47,6 +47,7 @@ rvm_gem 'rubygems-update' do
 end
 rvm_shell 'update_rubygems' do
   #not_if "test `gem -v` = 1.3.7"
+  action :run
   ruby_string node.rvm_redmine.rvm_name
 end
 rvm_gem 'rdoc' do
@@ -66,7 +67,7 @@ rvm_redmine_setup 'redmine-1.4.2' do
   rvm_home node.rvm_redmine.user_home
   owner node.rvm_redmine.user
   group node.rvm_redmine.group
-  archive_file = node.rvm_redmine.file
+  archive_src node.rvm_redmine.archive_src
   install_prefix node.rvm_redmine.install_prefix
   notifies :run, "rvm_shell[rvm_redmine load_default_data]", :immediately
 end
@@ -76,7 +77,7 @@ rvm_shell "rvm_redmine bundle install" do
   ruby_string node.rvm_redmine.rvm_name
   user        node.rvm_redmine.user
   cwd         "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
-  code        "bundle install --without development test pg postgresql sqlite rmagick"
+  code        "bundle install --path vendor/bundler --without development test pg postgresql sqlite rmagick"
 end
 
 rvm_shell "rvm_redmine db:migrate" do
