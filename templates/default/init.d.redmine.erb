@@ -9,9 +9,9 @@
 
 LANG=ja_JP.UTF-8
 
-USER=<%= node.rvm_redmine.user %>
-USERHOME=<%= node.rvm_redmine.user_home %>
-BASEDIR="<%= node.rvm_redmine.path %>"
+USER=<%= @user %>
+USERHOME=<%= @user_home %>
+BASEDIR="<%= @path %>"
 DAEMONSCRIPT="$BASEDIR/redmine.sh"
 DAEMONOPTIONS="production"
 

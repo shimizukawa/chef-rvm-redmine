@@ -29,13 +29,12 @@ end
 default[:rvm_redmine][:rvm_name] = "@redmine"
 default[:rvm_redmine][:user] = "www-data"
 default[:rvm_redmine][:group] = default[:rvm_redmine][:user]
-default[:rvm_redmine][:user_home] = "/var/www/#{default[:rvm_redmine][:user]}"
+default[:rvm_redmine][:user_home] = "/var/www/"
+default[:rvm_redmine][:install_prefix] = "/var/www/#{default[:rvm_redmine][:user]}"
 default[:rvm_redmine][:dl_id]    = "76130"
-default[:rvm_redmine][:version] = "1.4.2"
-default[:rvm_redmine][:name] = "redmine-#{default[:rvm_redmine][:version]}"
+default[:rvm_redmine][:name] = "redmine-1.4.2"
 default[:rvm_redmine][:file] = "#{default[:rvm_redmine][:name]}.tar.gz"
-default[:rvm_redmine][:archive] = "#{default[:rvm_redmine][:user_home]}/#{node.rvm_redmine.file}"
-default[:rvm_redmine][:path] = "#{default[:rvm_redmine][:user_home]}/#{node.rvm_redmine.name}"
+default[:rvm_redmine][:archive_url_base] = nil
 
 default[:rvm_redmine][:db][:type]     = "mysql"
 default[:rvm_redmine][:db][:user]     = "root"

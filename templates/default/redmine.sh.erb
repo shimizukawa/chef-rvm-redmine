@@ -12,13 +12,13 @@ fi
 
 # Load rvm
 [[ -s "/usr/local/rvm/scripts/rvm" ]] && . "/usr/local/rvm/scripts/rvm"
-BASEDIR="<%= node.rvm_redmine.path %>"
+BASEDIR="<%= @path %>"
 PIDFILE="$BASEDIR/tmp/pids/unicorn.pid"
 CONFIGFILE="$BASEDIR/config/unicorn.config.rb"
 DAEMONSCRIPT="unicorn_rails"
 DAEMONOPTIONS="-c $CONFIGFILE -E $RAILS_ENV -D"
 
-rvm use "<%= node.rvm_redmine.rvm_name %>"
+rvm use "<%= @rvm_name %>"
 
 case "$CMD" in
   start)

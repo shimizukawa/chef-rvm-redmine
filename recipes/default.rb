@@ -24,7 +24,7 @@ include_recipe "rvm::system"
 include_recipe "rvm::gem_package"
 
 
-directory node.rvm_redmine.user_home do
+directory node.rvm_redmine.install_prefix do
   owner node.rvm_redmine.user
   group node.rvm_redmine.group
   recursive true
@@ -61,95 +61,48 @@ rvm_gem 'bundler' do
   version '1.2.1'
 end
 
-remote_file node.rvm_redmine.archive do
-  action :create_if_missing
-  source "http://rubyforge.org/frs/download.php/#{node.rvm_redmine.dl_id}/#{node.rvm_redmine.file}"
-  mode "0664"
+rvm_redmine_setup 'redmine-1.4.2' do
+  rvm_name node.rvm_redmine.rvm_name
+  rvm_home node.rvm_redmine.user_home
   owner node.rvm_redmine.user
   group node.rvm_redmine.group
+  archive_file = node.rvm_redmine.file
+  install_prefix node.rvm_redmine.install_prefix
+  notifies :run, "rvm_shell[#{node.rvm_redmine.name} load_default_data]", :immediately
 end
 
-execute "extract-rails-archive" do
-  user node.rvm_redmine.user
-  group node.rvm_redmine.group
-  environment ({'HOME' => node.rvm_redmine.user_home})
-  command "tar zxf #{node.rvm_redmine.archive} -C #{node.rvm_redmine.user_home}"
-  not_if "test -f #{node.rvm_redmine.path}"
-end
-
-template "#{node.rvm_redmine.path}/config/database.yml" do
-  source "database.yml.erb"
-  mode "0644"
-  owner node.rvm_redmine.user
-  group node.rvm_redmine.group
-  variables({
-    :mysql_root_password => node['mysql']['server_root_password'],
-  })
-end
-
-template "#{node.rvm_redmine.path}/Gemfile.local" do
-  source "Gemfile.local"
-  mode "0644"
-  owner node.rvm_redmine.user
-  group node.rvm_redmine.group
-end
-
-template "#{node.rvm_redmine.path}/config/additional_environment.rb" do
-  source "additional_environment.rb"
-  mode "0644"
-  owner node.rvm_redmine.user
-  group node.rvm_redmine.group
-end
-
-rvm_shell "bundle install for rails" do
-  ruby_string node.rvm_redmine.rvm_name
-  cwd   node.rvm_redmine.path
-  code "bundle install --without development test pg postgresql sqlite rmagick"
-end
-
-rvm_shell "rails-setup" do
+rvm_shell "#{node.rvm_redmine.name} db:migrate" do
+  action :nothing
   ruby_string node.rvm_redmine.rvm_name
   user  node.rvm_redmine.user
   group node.rvm_redmine.group
-  cwd   node.rvm_redmine.path
+  cwd   "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
 
   #environment({'RAILS_ENV' => 'production', 'REDMINE_LANG' => 'ja'})  #this work only with use_rvm! see https://github.com/fnichol/chef-rvm/blob/master/providers/shell.rb#L78
   code <<-EOH
-  gem -v
   export RAILS_ENV=production
   export REDMINE_LANG=ja
-  rake --trace db:create
-  rake --trace generate_session_store
   rake --trace db:migrate
+  EOH
+  #not_if TODO
+end
+
+rvm_shell "#{node.rvm_redmine.name} load_default_data" do
+  action :nothing
+  ruby_string node.rvm_redmine.rvm_name
+  user  node.rvm_redmine.user
+  group node.rvm_redmine.group
+  cwd   "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
+  #environment({'RAILS_ENV' => 'production', 'REDMINE_LANG' => 'ja'})  #this work only with use_rvm! see https://github.com/fnichol/chef-rvm/blob/master/providers/shell.rb#L78
+  code <<-EOH
+  export RAILS_ENV=production
+  export REDMINE_LANG=ja
   rake --trace redmine:load_default_data
   EOH
-end
-
-template "#{node.rvm_redmine.path}/redmine.sh" do
-  source "redmine.sh.erb"
-  owner node.rvm_redmine.user
-  group node.rvm_redmine.group
-  mode "0755"
-end
-
-template "/etc/init.d/redmine" do
-  source "init.d.redmine.erb"
-  owner "root"
-  group "root"
-  mode "0755"
-  notifies :enable, "service[redmine]"
-  notifies :start, "service[redmine]"
-end
-
-template "#{node.rvm_redmine.path}/config/unicorn.config.rb" do
-  source "unicorn.config.rb.erb"
-  owner node.rvm_redmine.user
-  group node.rvm_redmine.group
-  mode "0644"
-  notifies :restart, "service[redmine]"
+  #not_if TODO
 end
 
 service "redmine" do
+  action :nothing
   supports :restart => true, :start => true, :stop => true, :reload => true
-  action :enable
 end
