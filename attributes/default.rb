@@ -43,6 +43,8 @@ default[:rvm_redmine][:db][:hostname] = "localhost"
 
 default[:rvm_redmine][:unicorn_port] = '10080'
 
+default[:rvm_redmine][:plugins] = []
+
 # for recipes/apache.rb
 default[:rvm_redmine][:hostname]         = 'localhost'
 default[:rvm_redmine][:hostname_aliases] = []
