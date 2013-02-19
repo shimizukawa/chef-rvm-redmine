@@ -28,7 +28,7 @@ define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :rvm_home
   path = "#{install_prefix}/#{name}"
   archive_dir = Chef::Config[:file_cache_path]
   archive_file = archive_src.split('/').last
-  install_target = "/etc/init.d/redmine"
+  install_target = "#{path}/redmine.sh"
 
   case params[:action]
   when :setup
@@ -45,7 +45,7 @@ define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :rvm_home
         end
       EOH
 
-      not_if "test -f #{archive_dir}/#{archive_file} -o -f #{install_target}"
+      not_if "test -f #{archive_dir}/#{archive_file} -o -d #{path}"
       notifies :run, "execute[extract-#{name}]"
     end
 
@@ -54,7 +54,7 @@ define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :rvm_home
       user owner
       cwd install_prefix
       command "tar zxf #{archive_dir}/#{archive_file}"
-      not_if "test -d #{path} -o -f #{install_target}"
+      not_if "test -f #{install_target}"
       notifies :create, "template[place-#{name}-database.yml]", :immediately
       notifies :create, "template[place-#{name}-Gemfile.local]", :immediately
       notifies :create, "template[place-#{name}-additional_environment.rb]", :immediately
