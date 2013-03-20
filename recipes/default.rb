@@ -24,6 +24,14 @@ include_recipe "imagemagick::devel" #need for redmine gantt
 include_recipe "rvm::system"
 include_recipe "rvm::gem_package"
 
+# setup dynamic attribute
+unless node["rvm_redmine"]["file"]
+  node["rvm_redmine"]["file"] = "#{node["rvm_redmine"]["name"]}.tar.gz"
+end
+unless node['rvm_redmine']['archive_src']
+  node['rvm_redmine']['archive_src'] = "http://rubyforge.org/frs/download.php/#{node['rvm_redmine']['dl_id']}/#{node['rvm_redmine']['file']}"
+end
+
 
 directory node.rvm_redmine.install_prefix do
   owner node.rvm_redmine.user

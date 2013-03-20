@@ -50,10 +50,3 @@ default[:rvm_redmine][:hostname]         = 'localhost'
 default[:rvm_redmine][:hostname_aliases] = []
 
 
-# setup dynamic attribute
-unless node[:rvm_redmine][:file]
-  override[:rvm_redmine][:file] = "#{node[:rvm_redmine][:name]}.tar.gz"
-end
-unless node[:rvm_redmine][:archive_src]
-  override[:rvm_redmine][:archive_src] = "http://rubyforge.org/frs/download.php/#{node[:rvm_redmine][:dl_id]}/#{node[:rvm_redmine][:file]}"
-end
