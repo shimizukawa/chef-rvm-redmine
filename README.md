@@ -28,6 +28,7 @@ Attributes
 `node['rvm_redmine']['db']['user']` - default is "root"
 `node['rvm_redmine']['db']['password']` - default is auto generated password that store into database.yml
 `node['rvm_redmine']['db']['hostname']` - default is "localhost"
+`node['rvm_redmine']['db']['dbname']` - default is "redmine"
 
 `node['rvm_redmine']['unicorn_port']` - default is '10080'
 `node['rvm_redmine']['hostname']` - default is 'localhost'

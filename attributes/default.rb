@@ -40,6 +40,7 @@ default["rvm_redmine"]["db"]["type"]     = "mysql"
 default["rvm_redmine"]["db"]["user"]     = "root"
 default["rvm_redmine"]["db"]["password"] = pw
 default["rvm_redmine"]["db"]["hostname"] = "localhost"
+default["rvm_redmine"]["db"]["dbname"]   = "redmine"
 
 default["rvm_redmine"]["unicorn_port"] = '10080'
 

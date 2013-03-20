@@ -6,7 +6,7 @@
 <% when "mysql" -%>
 production:
   adapter: mysql
-  database: redmine
+  database: <%= node["rvm_redmine"]["db"]["dbname"] %>
   host: <%= node["rvm_redmine"]["db"]["hostname"] %>
   username: <%= node["rvm_redmine"]["db"]["user"] %>
   password: <%= node["rvm_redmine"]["db"]["password"] %>
