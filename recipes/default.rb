@@ -18,6 +18,7 @@
 #
 
 include_recipe "openssl"
+include_recipe "mysql::client" #need for redmine-mysql connection
 include_recipe "imagemagick" #need for redmine gantt
 include_recipe "imagemagick::devel" #need for redmine gantt
 include_recipe "rvm::system"
