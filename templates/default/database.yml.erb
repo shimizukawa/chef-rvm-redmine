@@ -7,7 +7,7 @@
 production:
   adapter: mysql
   database: redmine
-  host: <% node["rvm_redmine"]["db"]["hostname"] %>
+  host: <%= node["rvm_redmine"]["db"]["hostname"] %>
   username: <%= node["rvm_redmine"]["db"]["user"] %>
   password: <%= node["rvm_redmine"]["db"]["password"] %>
   encoding: utf8
