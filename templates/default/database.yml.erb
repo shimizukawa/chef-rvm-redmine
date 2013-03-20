@@ -2,14 +2,14 @@
 # with MySQL and ruby1.9, replace the adapter name with `mysql2`.
 # Examples for PostgreSQL and SQLite3 can be found at the end.
 
-<% case node[:rvm_redmine][:db][:type] -%>
+<% case node["rvm_redmine"]["db"]["type"] -%>
 <% when "mysql" -%>
 production:
   adapter: mysql
   database: redmine
-  host: <% node[:rvm_redmine][:db][:hostname] %>
-  username: <%= node[:rvm_redmine][:db][:user] %>
-  password: <%= node[:rvm_redmine][:db][:password] %>
+  host: <% node["rvm_redmine"]["db"]["hostname"] %>
+  username: <%= node["rvm_redmine"]["db"]["user"] %>
+  password: <%= node["rvm_redmine"]["db"]["password"] %>
   encoding: utf8
 <% when "sqlite" -%>
 production:
