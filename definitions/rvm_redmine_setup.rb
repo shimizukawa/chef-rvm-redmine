@@ -45,7 +45,7 @@ define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :rvm_home
         end
       EOH
 
-      not_if "test -f #{archive_dir}/#{archive_file} -o -d #{install_target}"
+      not_if "test -f #{archive_dir}/#{archive_file} -o -f #{install_target}"
       notifies :run, "execute[extract-#{name}]"
     end
 
