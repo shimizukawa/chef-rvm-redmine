@@ -55,9 +55,9 @@ rvm_gem 'rubygems-update' do
   version '1.3.7'
 end
 rvm_shell 'update_rubygems' do
-  #not_if "test `gem -v` = 1.3.7"
-  action :run
   ruby_string node.rvm_redmine.rvm_name
+  code 'update_rubygems'
+  not_if "test `gem -v` = 1.3.7"
 end
 rvm_gem 'rdoc' do
   ruby_string node.rvm_redmine.rvm_name

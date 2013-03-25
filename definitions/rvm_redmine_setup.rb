@@ -60,6 +60,7 @@ define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :owner =>
       notifies :run, "rvm_shell[rvm_redmine bundle install]", :immediately
       notifies :run, "rvm_shell[setup #{name}]", :immediately
       notifies :create, "template[place-#{name}-redmine.sh]", :immediately
+      notifies :run, "rvm_shell[rvm_redmine db:migrate]", :immediately
     end
 
 
@@ -106,19 +107,17 @@ define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :owner =>
     rvm_shell "setup #{name}" do
       action :nothing
       ruby_string rvm_name
-      user owner
-      cwd   path
+      user 'root'
+      cwd path
 
-      #environment({'RAILS_ENV' => 'production', 'REDMINE_LANG' => 'ja'})  #this work only with use_rvm! see https://github.com/fnichol/chef-rvm/blob/master/providers/shell.rb#L78
+      #environment({'RAILS_ENV' => 'production', 'REDMINE_LANG' => 'ja'})  #this work only with `user_rvm`! see https://github.com/fnichol/chef-rvm/blob/master/providers/shell.rb#L78
       code <<-EOH
-      gem -v
       export RAILS_ENV=production
       export REDMINE_LANG=ja
       rake --trace db:create
       rake --trace generate_session_store
       EOH
-      #not_if TODO
-      notifies :run, "rvm_shell[rvm_redmine db:migrate]", :immediately
+      not_if "echo show tables|mysql -u root -p#{node.rvm_redmine.db.password} #{node.rvm_redmine.db.dbname}"
     end
 
   end
