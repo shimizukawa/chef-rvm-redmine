@@ -107,7 +107,7 @@ rvm_shell "rvm_redmine db:migrate" do
   user        'root'
   cwd         "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
 
-  #environment({'RAILS_ENV' => 'production', 'REDMINE_LANG' => 'ja'})  #this work only with use_rvm! see https://github.com/fnichol/chef-rvm/blob/master/providers/shell.rb#L78
+  #environment({'RAILS_ENV' => 'production', 'REDMINE_LANG' => 'ja'})  #this work only with user_rvm! see https://github.com/fnichol/chef-rvm/blob/master/providers/shell.rb#L78
   code <<-EOH
   export RAILS_ENV=production
   export REDMINE_LANG=ja
@@ -134,7 +134,7 @@ rvm_shell "rvm_redmine load_default_data" do
   user        node.rvm_redmine.user
   group       node.rvm_redmine.group
   cwd         "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
-  #environment({'RAILS_ENV' => 'production', 'REDMINE_LANG' => 'ja'})  #this work only with use_rvm! see https://github.com/fnichol/chef-rvm/blob/master/providers/shell.rb#L78
+  #environment({'RAILS_ENV' => 'production', 'REDMINE_LANG' => 'ja'})  #this work only with user_rvm! see https://github.com/fnichol/chef-rvm/blob/master/providers/shell.rb#L78
   code <<-EOH
   export RAILS_ENV=production
   export REDMINE_LANG=ja
