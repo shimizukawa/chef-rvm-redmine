@@ -13,7 +13,7 @@ fi
 # Load rvm
 [[ -s "/usr/local/rvm/scripts/rvm" ]] && . "/usr/local/rvm/scripts/rvm"
 BASEDIR="<%= @path %>"
-PIDFILE="$BASEDIR/tmp/pids/unicorn.pid"
+PIDFILE="/var/run/unicorn-<%= @name %>.pid"
 CONFIGFILE="$BASEDIR/config/unicorn.config.rb"
 DAEMONSCRIPT="bundle exec unicorn_rails"
 DAEMONOPTIONS="-c $CONFIGFILE -E $RAILS_ENV -D"

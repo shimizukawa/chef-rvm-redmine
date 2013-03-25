@@ -100,6 +100,7 @@ define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :owner =>
       mode "0755"
       variables({
         :path => path,
+        :name => name,
         :rvm_name => rvm_name
       })
     end
