@@ -58,7 +58,6 @@ define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :rvm_home
       notifies :create, "template[place-#{name}-database.yml]", :immediately
       notifies :create, "template[place-#{name}-Gemfile.local]", :immediately
       notifies :create, "template[place-#{name}-additional_environment.rb]", :immediately
-      notifies :create, "template[place-#{name}-unicorn.config.rb]", :immediately
       notifies :run, "rvm_shell[rvm_redmine bundle install]", :immediately
       notifies :run, "rvm_shell[setup #{name}]", :immediately
       notifies :create, "template[place-#{name}-redmine.sh]", :immediately
@@ -67,11 +66,11 @@ define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :rvm_home
 
     template "place-#{name}-database.yml" do
       action :nothing
-      owner owner
-      group group
+      owner 'root'
+      group 'root'
       source "database.yml.erb"
       path "#{path}/config/database.yml"
-      mode "0644"
+      mode "0600"
     end
 
     template "place-#{name}-Gemfile.local" do
@@ -90,18 +89,6 @@ define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :rvm_home
       source "additional_environment.rb"
       path "#{path}/config/additional_environment.rb"
       mode "0644"
-    end
-
-    template "place-#{name}-unicorn.config.rb" do
-      action :nothing
-      owner owner
-      group group
-      source "unicorn.config.rb.erb"
-      path "#{path}/config/unicorn.config.rb"
-      mode "0644"
-      variables({
-        :path => path
-      })
     end
 
     template "place-#{name}-redmine.sh" do

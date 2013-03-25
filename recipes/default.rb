@@ -23,6 +23,7 @@ include_recipe "imagemagick" #need for redmine gantt
 include_recipe "imagemagick::devel" #need for redmine gantt
 include_recipe "rvm::system"
 include_recipe "rvm::gem_package"
+include_recipe "unicorn"
 
 # setup dynamic attribute
 unless node["rvm_redmine"]["file"]
@@ -106,7 +107,7 @@ end
 rvm_shell "rvm_redmine db:migrate" do
   action      :nothing
   ruby_string node.rvm_redmine.rvm_name
-  user        node.rvm_redmine.user
+  user        'root'
   cwd         "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
 
   #environment({'RAILS_ENV' => 'production', 'REDMINE_LANG' => 'ja'})  #this work only with use_rvm! see https://github.com/fnichol/chef-rvm/blob/master/providers/shell.rb#L78
@@ -120,7 +121,7 @@ end
 rvm_shell "rvm_redmine db:migrate_plugins" do
   action      :nothing
   ruby_string node.rvm_redmine.rvm_name
-  user        node.rvm_redmine.user
+  user        'root'
   cwd         "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
 
   code <<-EOH
@@ -157,4 +158,27 @@ node.rvm_redmine.plugins.each do |plugin|
     redmine_home "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
     user         node.rvm_redmine.user
   end
+end
+
+unicorn_config "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}/config/unicorn.config.rb" do
+  listen({node.rvm_redmine.unicorn.port => node.rvm_redmine.unicorn.options})
+  working_directory    "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
+  worker_timeout       node.rvm_redmine.unicorn.worker_timeout
+  preload_app          node.rvm_redmine.unicorn.preload_app
+  worker_processes     node.rvm_redmine.unicorn.worker_processes
+  unicorn_command_line node.rvm_redmine.unicorn.unicorn_command_line
+  forked_user          node.rvm_redmine.unicorn.forked_user ||  node.rvm_redmine.user
+  forked_group         node.rvm_redmine.unicorn.forked_group || node.rvm_redmine.group
+  pid                  "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}/tmp/pids/unicorn.pid"
+  before_exec          node.rvm_redmine.unicorn.before_exec || 'self[:logger].formatter = proc{|severity, datetime, progname, message| "#{datetime}: #{message}\n"}'
+  before_fork          node.rvm_redmine.unicorn.before_fork || 'defined?(ActiveRecord::Base) and ActiveRecord::Base.connection.disconnect!'
+  after_fork           node.rvm_redmine.unicorn.after_fork || 'defined?(ActiveRecord::Base) and ActiveRecord::Base.establish_connection'
+  stderr_path          "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}/log/unicorn.stderr.log"
+  stdout_path          "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}/log/unicorn.stdout.log"
+  notifies             [:reload, "service[redmine]"]
+  owner                node.rvm_redmine.user
+  group                node.rvm_redmine.group
+  mode                 "0644"
+  copy_on_write        node.rvm_redmine.unicorn.copy_on_write
+  enable_stats         node.rvm_redmine.unicorn.enable_stats
 end

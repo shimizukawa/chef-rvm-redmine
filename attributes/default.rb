@@ -42,12 +42,23 @@ default["rvm_redmine"]["db"]["password"] = pw
 default["rvm_redmine"]["db"]["hostname"] = "localhost"
 default["rvm_redmine"]["db"]["dbname"]   = "redmine"
 
-default["rvm_redmine"]["unicorn_port"] = '10080'
-
 default["rvm_redmine"]["plugins"] = []
 
 # for recipes/apache.rb
 default["rvm_redmine"]["hostname"]         = 'localhost'
 default["rvm_redmine"]["hostname_aliases"] = []
 
-
+# for unicorn
+default["rvm_redmine"]["unicorn"]["port"] = 10080
+default["rvm_redmine"]["unicorn"]["options"] = [["tcp_nopush", "true"], ["backlog", "64"]]
+default["rvm_redmine"]["unicorn"]["worker_timeout"] = 30
+default["rvm_redmine"]["unicorn"]["worker_processes"] = 4
+default["rvm_redmine"]["unicorn"]["preload_app"] = true
+default["rvm_redmine"]["unicorn"]["unicorn_command_line"] = nil
+default["rvm_redmine"]["unicorn"]["forked_user"] = nil
+default["rvm_redmine"]["unicorn"]["forked_group"] = nil
+default["rvm_redmine"]["unicorn"]["before_exec"] = 'self[:logger].formatter = proc{|severity, datetime, progname, message| "#{datetime}: #{message}\n"}'
+default["rvm_redmine"]["unicorn"]["before_fork"] = 'defined?(ActiveRecord::Base) and ActiveRecord::Base.connection.disconnect!'
+default["rvm_redmine"]["unicorn"]["after_fork"] = 'defined?(ActiveRecord::Base) and ActiveRecord::Base.establish_connection'
+default["rvm_redmine"]["unicorn"]["copy_on_write"] = nil
+default["rvm_redmine"]["unicorn"]["enable_stats"] = nil

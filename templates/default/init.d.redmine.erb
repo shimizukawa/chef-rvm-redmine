@@ -9,24 +9,22 @@
 
 LANG=ja_JP.UTF-8
 
-USER=<%= @user %>
-USERHOME=<%= @user_home %>
 BASEDIR="<%= @path %>"
 DAEMONSCRIPT="$BASEDIR/redmine.sh"
 DAEMONOPTIONS="production"
 
 case "$1" in
   start)
-    su - $USER -c "HOME=$USERHOME $DAEMONSCRIPT $DAEMONOPTIONS start"
+    $DAEMONSCRIPT $DAEMONOPTIONS start
     ;;
   stop)
-    su - $USER -c "HOME=$USERHOME $DAEMONSCRIPT $DAEMONOPTIONS stop"
+    $DAEMONSCRIPT $DAEMONOPTIONS stop
     ;;
   reload)
-    su - $USER -c "HOME=$USERHOME $DAEMONSCRIPT $DAEMONOPTIONS reload"
+    $DAEMONSCRIPT $DAEMONOPTIONS reload
     ;;
   restart)
-    su - $USER -c "HOME=$USERHOME $DAEMONSCRIPT $DAEMONOPTIONS restart"
+    $DAEMONSCRIPT $DAEMONOPTIONS restart
     ;;
   *)
     echo "Usage: redmine.sh {start|stop|reload|restart}"

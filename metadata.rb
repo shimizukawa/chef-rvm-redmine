@@ -13,5 +13,6 @@ depends "mysql"
 depends "apache2"
 depends "imagemagick"
 depends "rvm"
+depends "unicorn"
 
 supports "ubuntu"
