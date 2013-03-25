@@ -165,7 +165,7 @@ unicorn_config "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}/conf
   unicorn_command_line node.rvm_redmine.unicorn.unicorn_command_line
   forked_user          node.rvm_redmine.unicorn.forked_user ||  node.rvm_redmine.user
   forked_group         node.rvm_redmine.unicorn.forked_group || node.rvm_redmine.group
-  pid                  "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}/tmp/pids/unicorn.pid"
+  pid                  "/var/run/unicorn-#{node.rvm_redmine.name}.pid"
   before_exec          node.rvm_redmine.unicorn.before_exec || 'self[:logger].formatter = proc{|severity, datetime, progname, message| "#{datetime}: #{message}\n"}'
   before_fork          node.rvm_redmine.unicorn.before_fork || 'defined?(ActiveRecord::Base) and ActiveRecord::Base.connection.disconnect!'
   after_fork           node.rvm_redmine.unicorn.after_fork || 'defined?(ActiveRecord::Base) and ActiveRecord::Base.establish_connection'
