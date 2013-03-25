@@ -17,10 +17,9 @@
 # limitations under the License.
 #
 
-define :rvm_redmine_plugin, :action => :install, :rvm_name => '@redmine', :rvm_home => nil, :user => 'root', :redmine_home => '/usr/local/redmine' do
+define :rvm_redmine_plugin, :action => :install, :rvm_name => '@redmine', :user => 'root', :redmine_home => '/usr/local/redmine' do
   plugin_name = params[:name]
   rvm_name = params[:rvm_name]
-  rvm_home = params[:rvm_home]
   user = params[:user]
   redmine_home = params[:redmine_home]
 

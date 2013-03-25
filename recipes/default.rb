@@ -73,7 +73,6 @@ end
 
 rvm_redmine_setup node.rvm_redmine.name do
   rvm_name node.rvm_redmine.rvm_name
-  rvm_home node.rvm_redmine.user_home
   owner node.rvm_redmine.user
   group node.rvm_redmine.group
   archive_src node.rvm_redmine.archive_src
@@ -88,8 +87,6 @@ template "/etc/init.d/redmine" do
   mode "0755"
   variables({
     :path => "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}",
-    :user => node.rvm_redmine.user,
-    :user_home => node.rvm_redmine.user_home,
   })
   notifies :enable, "service[redmine]", :immediately
   notifies :start, "service[redmine]"
@@ -154,7 +151,6 @@ end
 node.rvm_redmine.plugins.each do |plugin|
   rvm_redmine_plugin plugin do
     rvm_name     node.rvm_redmine.rvm_name
-    rvm_home     node.rvm_redmine.user_home
     redmine_home "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
     user         node.rvm_redmine.user
   end

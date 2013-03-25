@@ -17,10 +17,9 @@
 # limitations under the License.
 #
 
-define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :rvm_home => nil, :owner => 'root', :group => 'root', :install_prefix => '/usr/local', :archive_src => nil do
+define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :owner => 'root', :group => 'root', :install_prefix => '/usr/local', :archive_src => nil do
   name = params[:name]
   rvm_name = params[:rvm_name]
-  rvm_home = params[:rvm_home]
   owner = params[:owner]
   group = params[:group]
   archive_src = params[:archive_src]
