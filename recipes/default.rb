@@ -80,6 +80,21 @@ rvm_redmine_setup node.rvm_redmine.name do
   notifies :run, "rvm_shell[rvm_redmine load_default_data]", :immediately
 end
 
+template "/etc/init.d/redmine" do
+  source "init.d.redmine.erb"
+  owner "root"
+  group "root"
+  mode "0755"
+  variables({
+    :path => "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}",
+    :user => node.rvm_redmine.user,
+    :user_home => node.rvm_redmine.user_home,
+  })
+  notifies :enable, "service[redmine]", :immediately
+  notifies :start, "service[redmine]"
+end
+
+
 rvm_shell "rvm_redmine bundle install" do
   action      :nothing
   ruby_string node.rvm_redmine.rvm_name

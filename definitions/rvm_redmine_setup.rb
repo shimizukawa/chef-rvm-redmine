@@ -28,7 +28,7 @@ define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :rvm_home
   path = "#{install_prefix}/#{name}"
   archive_dir = Chef::Config[:file_cache_path]
   archive_file = archive_src.split('/').last
-  install_target = "/etc/init.d/redmine"
+  install_target = "#{path}/redmine.sh"
 
   case params[:action]
   when :setup
@@ -62,7 +62,6 @@ define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :rvm_home
       notifies :run, "rvm_shell[rvm_redmine bundle install]", :immediately
       notifies :run, "rvm_shell[setup #{name}]", :immediately
       notifies :create, "template[place-#{name}-redmine.sh]", :immediately
-      notifies :create, "template[place-#{name}-init.d]", :immediately
     end
 
 
@@ -116,22 +115,6 @@ define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :rvm_home
         :path => path,
         :rvm_name => rvm_name
       })
-    end
-
-    template "place-#{name}-init.d" do
-      action :nothing
-      path install_target
-      source "init.d.redmine.erb"
-      owner "root"
-      group "root"
-      mode "0755"
-      variables({
-        :path => path,
-        :user => owner,
-        :user_home => rvm_home
-      })
-      notifies :enable, "service[redmine]", :immediately
-      notifies :start, "service[redmine]"
     end
 
     rvm_shell "setup #{name}" do
