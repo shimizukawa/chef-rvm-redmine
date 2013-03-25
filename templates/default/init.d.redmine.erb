@@ -2,12 +2,9 @@
 
 # This script place to /etc/init.d/redmine
 
-# このスクリプトは実行ユーザーを切り替えるスクリプトで、起動される
-# redmine.sh はさらに unicorn を起動する。
-# redmine.sh は $USER の権限と環境で rvm を使うため、このスクリプト
-# とは分けています。
-
-LANG=ja_JP.UTF-8
+# This script call redmine.sh at base directory.
+# redmine.sh use rvm environment and invoke unicorn by root uid.
+# unicorn invoke worker process by other uid.
 
 BASEDIR="<%= @path %>"
 DAEMONSCRIPT="$BASEDIR/redmine.sh"
