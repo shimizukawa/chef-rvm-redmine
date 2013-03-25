@@ -80,19 +80,6 @@ rvm_redmine_setup node.rvm_redmine.name do
   notifies :run, "rvm_shell[rvm_redmine load_default_data]", :immediately
 end
 
-template "/etc/init.d/redmine" do
-  source "init.d.redmine.erb"
-  owner "root"
-  group "root"
-  mode "0755"
-  variables({
-    :path => "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}",
-  })
-  notifies :enable, "service[redmine]", :immediately
-  notifies :start, "service[redmine]"
-end
-
-
 rvm_shell "rvm_redmine bundle install" do
   action      :nothing
   ruby_string node.rvm_redmine.rvm_name
@@ -177,4 +164,20 @@ unicorn_config "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}/conf
   mode                 "0644"
   copy_on_write        node.rvm_redmine.unicorn.copy_on_write
   enable_stats         node.rvm_redmine.unicorn.enable_stats
+end
+
+link "#{node.rvm_redmine.install_prefix}/redmine" do
+  to "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
+end
+
+template "/etc/init.d/redmine" do
+  source "init.d.redmine.erb"
+  owner "root"
+  group "root"
+  mode "0755"
+  variables({
+    :path => "#{node.rvm_redmine.install_prefix}/redmine",
+  })
+  notifies :enable, "service[redmine]", :immediately
+  notifies :start, "service[redmine]"
 end
