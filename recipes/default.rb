@@ -80,46 +80,10 @@ rvm_redmine_setup node.rvm_redmine.name do
   notifies :run, "rvm_shell[rvm_redmine load_default_data]", :immediately
 end
 
-rvm_shell "rvm_redmine bundle install" do
-  action      :nothing
-  ruby_string node.rvm_redmine.rvm_name
-  user        node.rvm_redmine.user
-  cwd         "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
-  code        "bundle install --path vendor/bundler --without development test pg postgresql sqlite rmagick"
-end
-
-rvm_shell "rvm_redmine db:migrate" do
-  action      :nothing
-  ruby_string node.rvm_redmine.rvm_name
-  user        'root'
-  cwd         "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
-
-  #environment({'RAILS_ENV' => 'production', 'REDMINE_LANG' => 'ja'})  #this work only with user_rvm! see https://github.com/fnichol/chef-rvm/blob/master/providers/shell.rb#L78
-  code <<-EOH
-  export RAILS_ENV=production
-  export REDMINE_LANG=ja
-  rake --trace db:migrate
-  EOH
-end
-
-rvm_shell "rvm_redmine db:migrate_plugins" do
-  action      :nothing
-  ruby_string node.rvm_redmine.rvm_name
-  user        'root'
-  cwd         "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
-
-  code <<-EOH
-    export RAILS_ENV=production
-    export REDMINE_LANG=ja
-    rake --trace db:migrate_plugins
-  EOH
-end
-
 rvm_shell "rvm_redmine load_default_data" do
-  action      :nothing
   ruby_string node.rvm_redmine.rvm_name
-  user        node.rvm_redmine.user
-  group       node.rvm_redmine.group
+  user        'root'
+  group       'root'
   cwd         "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
   #environment({'RAILS_ENV' => 'production', 'REDMINE_LANG' => 'ja'})  #this work only with user_rvm! see https://github.com/fnichol/chef-rvm/blob/master/providers/shell.rb#L78
   code <<-EOH
@@ -128,11 +92,6 @@ rvm_shell "rvm_redmine load_default_data" do
   rake --trace redmine:load_default_data
   EOH
   #not_if TODO
-end
-
-service "redmine" do
-  action :nothing
-  supports :restart => true, :start => true, :stop => true, :reload => true
 end
 
 node.rvm_redmine.plugins.each do |plugin|
@@ -181,3 +140,47 @@ template "/etc/init.d/redmine" do
   notifies :enable, "service[redmine]", :immediately
   notifies :start, "service[redmine]"
 end
+
+############################################################################
+# action nothing resources.
+
+rvm_shell "rvm_redmine bundle install" do
+  action      :nothing
+  ruby_string node.rvm_redmine.rvm_name
+  user        node.rvm_redmine.user
+  cwd         "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
+  code        "bundle install --path vendor/bundler --without development test pg postgresql sqlite rmagick"
+end
+
+rvm_shell "rvm_redmine db:migrate" do
+  action      :nothing
+  ruby_string node.rvm_redmine.rvm_name
+  user        'root'
+  cwd         "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
+
+  #environment({'RAILS_ENV' => 'production', 'REDMINE_LANG' => 'ja'})  #this work only with user_rvm! see https://github.com/fnichol/chef-rvm/blob/master/providers/shell.rb#L78
+  code <<-EOH
+  export RAILS_ENV=production
+  export REDMINE_LANG=ja
+  rake --trace db:migrate
+  EOH
+end
+
+rvm_shell "rvm_redmine db:migrate_plugins" do
+  action      :nothing
+  ruby_string node.rvm_redmine.rvm_name
+  user        'root'
+  cwd         "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
+
+  code <<-EOH
+    export RAILS_ENV=production
+    export REDMINE_LANG=ja
+    rake --trace db:migrate_plugins
+  EOH
+end
+
+service "redmine" do
+  action :nothing
+  supports :restart => true, :start => true, :stop => true, :reload => true
+end
+
