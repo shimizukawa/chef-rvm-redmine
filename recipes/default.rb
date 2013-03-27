@@ -17,6 +17,12 @@
 # limitations under the License.
 #
 
+#rvm-patch: rvm required libgdbm-dev, libffi-dev packages.
+#do before 'include_recipe "rvm"
+package 'libgdbm-dev'
+package 'libffi-dev'
+#end-of-rvm-patch
+
 include_recipe "openssl"
 include_recipe "mysql::client" #need for redmine-mysql connection
 include_recipe "imagemagick" #need for redmine gantt
