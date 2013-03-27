@@ -38,6 +38,7 @@ apache
 
 `node['rvm_redmine']['hostname']` - default is 'localhost'
 `node['rvm_redmine']['hostname_aliases']` - default is []
+`node['rvm_redmine']['url_subpath']` - default is nil that means mounting to '/'.
 
 unicorn (see also https://github.com/opscode-cookbooks/unicorn )
 
