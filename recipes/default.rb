@@ -39,7 +39,6 @@ unless node['rvm_redmine']['archive_src']
   node['rvm_redmine']['archive_src'] = "http://rubyforge.org/frs/download.php/#{node['rvm_redmine']['dl_id']}/#{node['rvm_redmine']['file']}"
 end
 
-
 directory node.rvm_redmine.install_prefix do
   owner node.rvm_redmine.user
   group node.rvm_redmine.group
@@ -83,21 +82,6 @@ rvm_redmine_setup node.rvm_redmine.name do
   group node.rvm_redmine.group
   archive_src node.rvm_redmine.archive_src
   install_prefix node.rvm_redmine.install_prefix
-  notifies :run, "rvm_shell[rvm_redmine load_default_data]", :immediately
-end
-
-rvm_shell "rvm_redmine load_default_data" do
-  ruby_string node.rvm_redmine.rvm_name
-  user        'root'
-  group       'root'
-  cwd         "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}"
-  #environment({'RAILS_ENV' => 'production', 'REDMINE_LANG' => 'ja'})  #this work only with user_rvm! see https://github.com/fnichol/chef-rvm/blob/master/providers/shell.rb#L78
-  code <<-EOH
-  export RAILS_ENV=production
-  export REDMINE_LANG=ja
-  rake --trace redmine:load_default_data
-  EOH
-  #not_if TODO
 end
 
 node.rvm_redmine.plugins.each do |plugin|

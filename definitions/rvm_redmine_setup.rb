@@ -45,7 +45,7 @@ define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :owner =>
       EOH
 
       not_if "test -f #{archive_dir}/#{archive_file} -o -f #{install_target}"
-      notifies :run, "execute[extract-#{name}]"
+      #notifies :run, "execute[extract-#{name}]", :immediately
     end
 
     execute "extract-#{name}" do
@@ -54,59 +54,73 @@ define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :owner =>
       cwd install_prefix
       command "tar zxf #{archive_dir}/#{archive_file}"
       not_if "test -f #{install_target}"
-      notifies :create, "template[place-#{name}-database.yml]", :immediately
-      notifies :create, "template[place-#{name}-Gemfile.local]", :immediately
       notifies :create, "template[place-#{name}-additional_environment.rb]", :immediately
+      notifies :create, "template[place-#{name}-Gemfile.local]", :immediately
       notifies :run, "rvm_shell[rvm_redmine bundle install]", :immediately
-      notifies :run, "rvm_shell[setup #{name}]", :immediately
-      notifies :create, "template[place-#{name}-redmine.sh]", :immediately
+      notifies :create, "template[place-#{name}-database.yml]", :immediately
+      notifies :run, "rvm_shell[#{name} rake generate_session_store]", :immediately
+      notifies :run, "rvm_shell[#{name} rake db:create]", :immediately
       notifies :run, "rvm_shell[rvm_redmine db:migrate]", :immediately
-    end
-
-
-    template "place-#{name}-database.yml" do
-      action :nothing
-      owner 'root'
-      group 'root'
-      source "database.yml.erb"
-      path "#{path}/config/database.yml"
-      mode "0600"
+      notifies :run, "rvm_shell[#{name} load_default_data]", :immediately
+      notifies :create, "template[place-#{name}-redmine.sh]", :immediately
     end
 
     template "place-#{name}-Gemfile.local" do
-      action :nothing
       owner owner
       group group
       source "Gemfile.local"
       path "#{path}/Gemfile.local"
       mode "0644"
+      notifies :run, "rvm_shell[rvm_redmine bundle install]"
     end
 
     template "place-#{name}-additional_environment.rb" do
-      action :nothing
       owner owner
       group group
       source "additional_environment.rb"
       path "#{path}/config/additional_environment.rb"
       mode "0644"
+      notifies :restart, "service[redmine]"
+    end
+
+    template "place-#{name}-database.yml" do
+      owner 'root'
+      group 'root'
+      source "database.yml.erb"
+      path "#{path}/config/database.yml"
+      mode "0600"
+      notifies :run, "rvm_shell[rvm_redmine db:migrate]"
     end
 
     template "place-#{name}-redmine.sh" do
-      action :nothing
       owner owner
       group group
       source "redmine.sh.erb"
-      path "#{path}/redmine.sh"
+      path install_target
       mode "0755"
       variables({
         :path => path,
         :name => name,
         :rvm_name => rvm_name
       })
+      notifies :restart, "service[redmine]"
     end
 
-    rvm_shell "setup #{name}" do
-      action :nothing
+    rvm_shell "#{name} rake generate_session_store" do
+      ruby_string rvm_name
+      user 'root'
+      cwd path
+
+      #environment({'RAILS_ENV' => 'production', 'REDMINE_LANG' => 'ja'})  #this work only with `user_rvm`! see https://github.com/fnichol/chef-rvm/blob/master/providers/shell.rb#L78
+      code <<-EOH
+      export RAILS_ENV=production
+      export REDMINE_LANG=ja
+      rake --trace generate_session_store
+      EOH
+      not_if "test -f #{path}/config/initializers/session_store.rb"
+    end
+
+    rvm_shell "#{name} rake db:create" do
       ruby_string rvm_name
       user 'root'
       cwd path
@@ -116,9 +130,23 @@ define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :owner =>
       export RAILS_ENV=production
       export REDMINE_LANG=ja
       rake --trace db:create
-      rake --trace generate_session_store
       EOH
       not_if "echo show tables|mysql -u root -p#{node.rvm_redmine.db.password} #{node.rvm_redmine.db.dbname}"
+    end
+
+    rvm_shell "#{name} load_default_data" do
+      action :nothing
+      ruby_string rvm_name
+      user 'root'
+      cwd path
+
+      #environment({'RAILS_ENV' => 'production', 'REDMINE_LANG' => 'ja'})  #this work only with user_rvm! see https://github.com/fnichol/chef-rvm/blob/master/providers/shell.rb#L78
+      code <<-EOH
+      export RAILS_ENV=production
+      export REDMINE_LANG=ja
+      rake --trace redmine:load_default_data
+      EOH
+      #not_if TODO
     end
 
   end
