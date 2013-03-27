@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :owner => 'root', :group => 'root', :install_prefix => '/usr/local', :archive_src => nil do
+define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :owner => 'root', :group => 'root', :install_prefix => '/usr/local', :archive_src => nil, :url_subpath => nil do
   name = params[:name]
   rvm_name = params[:rvm_name]
   owner = params[:owner]
@@ -28,6 +28,7 @@ define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :owner =>
   archive_dir = Chef::Config[:file_cache_path]
   archive_file = archive_src.split('/').last
   install_target = "#{path}/redmine.sh"
+  url_subpath = params[:url_subpath]
 
   case params[:action]
   when :setup
@@ -93,6 +94,8 @@ define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :owner =>
     end
 
     template "place-#{name}-redmine.sh" do
+      unicorn_options = "--path=#{url_subpath}" if url_subpath
+
       owner owner
       group group
       source "redmine.sh.erb"
@@ -101,7 +104,8 @@ define :rvm_redmine_setup, :action => :setup, :rvm_name => '@redmine', :owner =>
       variables({
         :path => path,
         :name => name,
-        :rvm_name => rvm_name
+        :rvm_name => rvm_name,
+        :extra_unicorn_options => unicorn_options
       })
       notifies :restart, "service[redmine]"
     end

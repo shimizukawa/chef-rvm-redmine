@@ -28,12 +28,14 @@ apache_module 'proxy' do
 end
 
 web_app "redmine" do
+  subpath = node.rvm_redmine.url_subpath || '/'
+
   template 'apache-redmine-proxy.conf.erb'
   server_name node.rvm_redmine.hostname
   server_aliases node.rvm_redmine.hostname_aliases
   docroot "#{node.rvm_redmine.install_prefix}/#{node.rvm_redmine.name}/public"
   application_name 'redmine'
-  proxy_pass "/ http://127.0.0.1:#{node.rvm_redmine.unicorn.port}/"
-  proxy_pass_reverse "/ http://127.0.0.1:#{node.rvm_redmine.unicorn.port}/"
+  proxy_pass "#{subpath} http://127.0.0.1:#{node.rvm_redmine.unicorn.port}#{subpath}"
+  proxy_pass_reverse "#{subpath} http://127.0.0.1:#{node.rvm_redmine.unicorn.port}#{subpath}"
   notifies :reload, "service[apache2]"
 end

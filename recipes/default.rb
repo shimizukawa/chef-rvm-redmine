@@ -82,6 +82,7 @@ rvm_redmine_setup node.rvm_redmine.name do
   group node.rvm_redmine.group
   archive_src node.rvm_redmine.archive_src
   install_prefix node.rvm_redmine.install_prefix
+  url_subpath node.rvm_redmine.url_subpath
 end
 
 node.rvm_redmine.plugins.each do |plugin|

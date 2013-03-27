@@ -45,6 +45,7 @@ default["rvm_redmine"]["db"]["dbname"]   = "redmine"
 default["rvm_redmine"]["plugins"] = []
 
 # for recipes/apache.rb
+default["rvm_redmine"]["url_subpath"]      = nil
 default["rvm_redmine"]["hostname"]         = 'localhost'
 default["rvm_redmine"]["hostname_aliases"] = []
 
