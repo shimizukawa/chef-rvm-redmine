@@ -33,10 +33,10 @@ include_recipe "unicorn"
 
 # setup dynamic attribute
 unless node["rvm_redmine"]["file"]
-  node["rvm_redmine"]["file"] = "#{node["rvm_redmine"]["name"]}.tar.gz"
+  node.default["rvm_redmine"]["file"] = "#{node["rvm_redmine"]["name"]}.tar.gz"
 end
 unless node['rvm_redmine']['archive_src']
-  node['rvm_redmine']['archive_src'] = "http://rubyforge.org/frs/download.php/#{node['rvm_redmine']['dl_id']}/#{node['rvm_redmine']['file']}"
+  node.default['rvm_redmine']['archive_src'] = "http://rubyforge.org/frs/download.php/#{node['rvm_redmine']['dl_id']}/#{node['rvm_redmine']['file']}"
 end
 
 directory node.rvm_redmine.install_prefix do
